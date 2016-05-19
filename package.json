@@ -16,7 +16,8 @@
   ],
   "main": "./lib/index.js",
   "scripts": {
-    "test": "$(npm bin)/mocha"
+    "test": "$(npm bin)/mocha",
+    "test-travis": "$(npm bin)/istanbul cover $(npm bin)/_mocha -- -R spec ./test/*"
   },
   "author": {
     "name": "Richard Carls",
@@ -35,6 +36,8 @@
     "chai-json-schema": "^1.2.0",
     "chai-passport-strategy": "^1.0.0",
     "chai-things": "^0.2.0",
+    "coveralls": "^2.11.9",
+    "istanbul": "^0.4.3",
     "mocha": "^2.4.5",
     "nock": "^8.0.0"
   }
