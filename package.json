@@ -1,5 +1,5 @@
 {
-  "name": "@richardcarls/passport-indieauth",
+  "name": "@rcarls/passport-indieauth",
   "version": "1.0.0",
   "description": "IndieAuth authentication strategy for Passport.",
   "repository": {

@@ -1,4 +1,4 @@
-#passport-indieauth
+#passport-indieauth (PRE-PUBLISH)
 [![Build Status](https://travis-ci.org/richardcarls/passport-indieauth.svg?branch=master)](https://travis-ci.org/richardcarls/passport-indieauth)
 [![Coverage Status](https://coveralls.io/repos/github/richardcarls/passport-indieauth/badge.svg?branch=master)](https://coveralls.io/github/richardcarls/passport-indieauth?branch=master)
 
@@ -10,12 +10,12 @@ into any [Node.js](https://nodejs.org/en/) application or framework that support
 [Connect](http://www.senchalabs.org/connect/)-style middleware, including the popular [Express](http://expressjs.com/).
 
 This strategy only implements the client-side of the [IndieAuth protocol](http://indiewebcamp.com/IndieAuthProtocol), and relies on endpoint discovery to determine how
-to delegate authentication. **A fallback authentication endpoint will be configurable in future versions.**
+to delegate authentication. A fallback authorization endpoint can be configured, and the strategy defaults to using the canonical [indieauth.com](https://indieauth.com).
 
 ## Install
 
 ```shell
-$ npm install @richardcarls/passport-indieauth
+$ npm install @rcarls/passport-indieauth
 ```
 
 ## Usage
@@ -26,7 +26,7 @@ redirect URI for authorization flow. The request object can optionally be passed
 
 ```javascript
 require('passport');
-require('@richardcarls/passport-indieauth');
+require('@rcarls/passport-indieauth');
 
 // ...
 
@@ -65,13 +65,49 @@ app.get('/profile', passport.authenticate('indieauth', { failureRedirect: '/logi
   });
 ```
 
+You can use the strategy for both requesting an auth code from a login page, and handling the code verification on the redirect route
+
+```javascript
+// put on your login route to capture the request params and kick off the authorization flow
+app.post('/login', passport.authenticate('indieauth', { failureRedirect: '/login', failureFlash: true, }));
+
+// put on your redirect route to handle the auth response and verification
+app.get('/auth', passport.authenticate('indieauth', { successRedirect: '/profile', failureRedirect: '/login', failureFlash: true, }));
+```
+
+#### Getting the User Profile
+The strategy provides structured profile data consistent with the [Portable Contacts draft spec](http://portablecontacts.net/draft-spec.html) if found
+when parsing the user's domain response. Note that not all possible mappings are currently implemented at this time.
+
+```javascript
+passport.use(new IndieAuthStrategy({
+		clientId: 'https://example-client.com/',
+		redirectUri: 'https://example-client.com/auth',
+  }, function(domain, scope, profile, done) {
+	  var user = {
+		  me: domain,
+		  scope: scope,
+	  };
+	  
+	  if (profile.name && profile.name.formatted) {
+		  user.name = profile.name.formatted;
+	  }
+	  
+	  if (profile.photos && profile.photos.length) {
+		  user.avatarUrl = profile.photos[0].value;
+	  }
+	  
+	  // etc.
+  });
+});
+```
+
 #### Using IndieAuth
 See the [IndieWebCamp wiki entry for IndieAuth](http://indiewebcamp.com/IndieAuth) and [setup instructions](https://indieauth.com/setup) to start using
 your own domain for web sign-in. In addition to your client id being your web application's domain name, the protocol requires the inclusion of
-a `<link rel="redirect_uri" />` tag on your root page. (note: this is not currently required if using indieauth.com, but it is part of the protocol).
+a `<link rel="redirect_uri" />` tag on your root page. (note: this is seems to be a "soft" requirement at this point).
 
-Users may optionally specify a `rel="authorization_endpoint"` on your home page to use an authentication service of your
-choosing.
+Users may optionally specify a `rel="authorization_endpoint"` on thier home page to use an authentication service of thier choosing. To make profile information available, a user will need to have an [h-card](http://microformats.org/wiki/h-card) in the body of thier home page.
 
 #### Other Usage Notes
 - The strategy currently uses a `_csrf` request property as the `state` parameter in authentication requests to the discovered service to
@@ -83,7 +119,7 @@ choosing.
 	passport.authenticate(['indieauth', 'anonymous']);
 	```
 
-- The `profile` argument supplied to the verify callback defaults to PortableContacts format of the parsed user page, but you may instead have the parsed data passed directly by setting the `mfDataAsProfile` option to `true`. See [microformat-node](https://github.com/glennjones/microformat-node#output) for the structure of this data.
+- The `profile` argument supplied to the verify callback defaults to PortableContacts format of the parsed user page, but you may instead have the parsed data passed directly by setting the `mfDataAsProfile` option to `true`. See [microformat-node](https://github.com/glennjones/microformat-node#output) for the structure of this data, and [h-card draft spec](http://microformats.org/wiki/h-card) for the relevant profile-related properties.
 
 ## Related Modules
 - [passport-indieauth](https://github.com/mko/passport-indieauth) - IndieAuth authentication strategy for Passport.
@@ -101,10 +137,16 @@ $ npm test
 Please feel free to submit bugs and feature requests through the issues interface. I welcome pull requests, even for small things.
 
 #### Tests
-The test suite is located in the `test/` directory. All new features are expected to have corresponding test cases. Ensure that all tests are passing by running the test command.
+The test suite is located in the `test/` directory. All new features are expected to have corresponding test cases. Ensure that all tests are passing by running the test command. Improvements to the test suite are welcome (I'm new), submit a pull request!
 
 ```shell
 npm test
+```
+
+or with travis
+
+```shell
+npm run test-travis
 ```
 
 ## Credits
