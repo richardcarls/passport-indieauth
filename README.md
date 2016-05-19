@@ -1,4 +1,4 @@
-#@rcarls/passport-indieauth
+#@richardcarls/passport-indieauth
 
 An [IndieAuth](http://indiewebcamp.com/IndieAuth) authentication strategy for [Passport](http://passportjs.org/).
 
@@ -13,7 +13,7 @@ to delegate authentication. **A fallback authentication endpoint will be configu
 ## Install
 
 ```shell
-$ npm install @rcarls/passport-indieauth
+$ npm install @richardcarls/passport-indieauth
 ```
 
 ## Usage
@@ -24,17 +24,18 @@ redirect URI for authorization flow. The request object can optionally be passed
 
 ```javascript
 require('passport');
-require('@rcarls/passport-indieauth');
+require('@richardcarls/passport-indieauth');
 
 // ...
 
 passport.use(new IndieAuthStrategy({
-	clientId: 'https://example-client.com/',
-	redirectUri: 'https://example-client.com/auth',
-	passReqToCallback: true,
+		clientId: 'https://example-client.com/',
+		redirectUri: 'https://example-client.com/auth',
+		passReqToCallback: true,
   }, function(req, domain, scope, profile, done) {
-	User.findOrCreate({ url: domain }, function(err, user) {
-	return done(err, user);
+		User.findOrCreate({ url: domain }, function(err, user) {
+			return done(err, user);
+		});
   });
 });
 ```
@@ -44,7 +45,10 @@ passport.use(new IndieAuthStrategy({
   The convention is to include a trailing slash after the domain name, but is not required.
   (ex: `https://example-client.com/`)
 - `redirectUri` {String} - The authorization redirect URI.
-- `passReqToCallback` {Boolean} - If `true`, passes the request object to the verify callback. (optional)
+- `responseType` {String} - The response type of the auth request. Valid values are `'id'` (identification only), or `'code'` (identification + authorization) (optional, defaults to 'id')
+- `defaultAuthEndpoint` {String} - The fallback authorization service to use if not discovered. (optional, defaults to 'https://indieauth.com/auth')
+- `mfDataAsProfile` {Boolean} - Prefer to have the parsed microformat data passed to the verify callback as `profile`. Default is to map the parsed data to PortableContacts schema (optional, defaults to false)
+- `passReqToCallback` {Boolean} - If `true`, passes the request object to the verify callback. (optional, defaults to false)
 
 #### Authenticate Requests
 Use `passport.authenticate()`, specifying the `'indieauth'` strategy, to authenticate requests.
@@ -70,21 +74,19 @@ choosing.
 #### Other Usage Notes
 - The strategy currently uses a `_csrf` request property as the `state` parameter in authentication requests to the discovered service to
   [prevent CSRF attacks](http://tools.ietf.org/html/rfc6749#section-10.12). It is recommended to use a middleware like [csurf](https://www.npmjs.com/package/csurf)
-  to generate csrf tokens to embed on your login page. **Note: The state parameter will be configurable in future versions.**
+  to generate csrf tokens to embed on your login page.
 - For allowing unauthenticated requests, specify [passport-anonymous](https://www.npmjs.com/package/passport-anonymous) after indieauth:
 
 	```javascript
 	passport.authenticate(['indieauth', 'anonymous']);
 	```
 
-- The `profile` argument supplied to the verify callback is the parsed microformats data from the user's home page. See
-  [microformat-node](https://github.com/glennjones/microformat-node#output) for the structure of this data. Common usage would be to save the user's
-  name and photo URL from the [representative h-card](https://indiewebcamp.com/representative_h-card), or the discovered
-  [micropub](https://indiewebcamp.com/Micropub) endpoint.
+- The `profile` argument supplied to the verify callback defaults to PortableContacts format of the parsed user page, but you may instead have the parsed data passed directly by setting the `mfDataAsProfile` option to `true`. See [microformat-node](https://github.com/glennjones/microformat-node#output) for the structure of this data.
 
 ## Related Modules
 - [passport-indieauth](https://github.com/mko/passport-indieauth) - IndieAuth authentication strategy for Passport.
 - [relmeauth](https://www.npmjs.com/package/relmeauth) - A rel=me auth middleware implementation in node.js. Works with any connect-type web application
+- [passport](https://github.com/jaredhanson/passport) - Simple, unobtrusive authentication for Node.js.
 
 ## Tests
 
@@ -94,11 +96,10 @@ $ npm test
 ```
 
 ## Contributing
-
+Please feel free to submit bugs and feature requests through the issues interface. I welcome pull requests, even for small things.
 
 #### Tests
-The test suite is located in the `test/` directory. All new features are expected to have corresponding test cases. Ensure that all tests are
-passing by running the test command.
+The test suite is located in the `test/` directory. All new features are expected to have corresponding test cases. Ensure that all tests are passing by running the test command.
 
 ```shell
 npm test
