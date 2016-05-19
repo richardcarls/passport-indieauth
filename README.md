@@ -1,4 +1,5 @@
-#@richardcarls/passport-indieauth
+#passport-indieauth
+[![Build Status](https://travis-ci.org/richardcarls/passport-indieauth.svg?branch=master)](https://travis-ci.org/richardcarls/passport-indieauth)
 
 An [IndieAuth](http://indiewebcamp.com/IndieAuth) authentication strategy for [Passport](http://passportjs.org/).
 
