@@ -5,8 +5,57 @@
 
     <!-- Authorization endpoint: If not included in the HTTP link header, this is the preferred link -->
     <link rel="authorization_endpoint" href="https://example-auth-endpoint.com/head/auth" />
+
+    <!-- Micropub endpoint: Not required but useful -->
+    <link rel="micropub" href="https://example-user.com/micropub" />
   </head>
   <body>
     <!-- Representative hCard -->
+    <div class="h-card">
+
+      <!-- Photos (plural) -->
+      <img class="u-photo" src="/images/john_doe1.jpg" />
+      <img class="u-photo" src="/images/john_doe2.jpg" />
+      
+      <!-- Name (element) -->
+      <p class="p-name"><span class="p-honorific-prefix">Mr.</span><span class="p-given-name">John</span> <span class="p-nickname">&ldquo;The Default&rdquo;</span> <span class="p-additional-name">Joe</span> <span class="p-family-name">Doe</span> <span class="p-honorific-suffix">Ph.D</span></p>
+
+      <!-- Gender (singular) -->
+      <p class="p-gender-identity">Male</p>
+
+      <!-- Address (element) -->
+      <p class="p-adr h-adr">
+	<span class="p-street-address">123 Main St.</span>
+	<span class="p-extended-address">Apt. B</span>
+	<span class="p-locality">Exampleton</span>
+	<span class="p-region">Defaulting</span>
+	<span class="p-postal-code">12345</span>
+	<span class="p-country-name">Test Nation</span>
+      </p>
+
+      <!-- Note (Singular) -->
+      <p class="p-note">Lorem ipsum dolar sit amet</p>
+      
+      <!-- Email (plural) -->
+      <p class="u-email">john.doe@example.com</p>
+      <p class="u-email">john.doe2@example.com</p>
+
+      <!-- Birthday (singular) -->
+      <time class="dt-bday" datetime="1985-11-02T00:00:00-05:00">November 2, 1985</time>
+
+      <!-- Anniversary (singular) -->
+      <time class="dt-anniversary" datetime="2013-09-28T00:00:00-05:00">September 28, 2013</time>
+
+      <!-- Phone (plural) -->
+      <p class="p-tel">555-555-5555</p>
+      <p class="p-tel">+1 (666) 666-6666</p>
+      
+      <!-- URL (plural) -->
+      <a rel="me" class="u-url u-uid" href="https://example-user.com">Homepage</a>
+      <a rel="me" class="u-url" href="https://plus.google.com/+JohnDoe">Google</a>
+    </div>
+    
+    <!-- Should favor Link header, links within head, over links in body for endpoints -->
+    <link rel="authorization_endpoint" href="https://example-auth-endpoint.com/body/auth" />
   </body>
 </html>

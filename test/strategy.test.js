@@ -4,6 +4,8 @@ var expect = require('chai').expect;
 
 var IndieAuthStrategy = require('../');
 
+var mockClientId = 'https://example-client.com';
+var mockRedirectUri = 'https://example-client.com/auth';
 
 describe('@rcarls/passport-indieauth', function() {
 
@@ -12,8 +14,8 @@ describe('@rcarls/passport-indieauth', function() {
     describe('with minimum options and verify callback', function() {
 
       var strategy = new IndieAuthStrategy({
-	clientId: 'https://example-client.com/',
-	redirectUri: 'https://example-client.com/auth',
+	clientId: mockClientId + '/',
+	redirectUri: mockRedirectUri,
       }, function() {});
       
       it('should be named "indieauth"', function() {
@@ -37,8 +39,8 @@ describe('@rcarls/passport-indieauth', function() {
       it('should throw', function() {
 	expect(function() {
 	  var strategy = new IndieAuthStrategy({
-	    clientId: 'https://example-client.com/',
-	    redirectUri: 'https://example-client.com/auth',
+	    clientId: mockClientId + '/',
+	    redirectUri: mockRedirectUri,
 	  });
 	}).to.throw(TypeError, 'IndieAuthStrategy requires a verify callback');
       });
@@ -50,7 +52,7 @@ describe('@rcarls/passport-indieauth', function() {
       it('should throw', function() {
 	expect(function() {
 	  var strategy = new IndieAuthStrategy({
-	    redirectUri: 'https://example-client.com/auth',
+	    redirectUri: mockRedirectUri,
 	  }, function() {});
 	}).to.throw(TypeError, 'IndieAuthStrategy requires a clientId option');
       });
@@ -62,12 +64,26 @@ describe('@rcarls/passport-indieauth', function() {
       it('should throw', function() {
 	expect(function() {
 	  var strategy = new IndieAuthStrategy({
-	    clientId: 'https://example-client.com/',
+	    clientId: mockClientId + '/',
 	  }, function() {});
 	}).to.throw(TypeError, 'IndieAuthStrategy requires a redirectUri option');
       });
       
     }); // without a redirectUri option
+
+    describe('with an invalid responseType', function() {
+
+      it('should throw', function() {
+	expect(function() {
+	  var strategy = new IndieAuthStrategy({
+	    clientId: mockClientId + '/',
+	    redirectUri: mockRedirectUri,
+	    responseType: 'invalid',
+	  }, function() {});
+	}).to.throw(TypeError, 'response_type must be one of either "id" or "code"');
+      });
+      
+    }); // with an invalid responseType
     
   });
   
