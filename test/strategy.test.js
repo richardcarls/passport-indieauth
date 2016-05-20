@@ -1,4 +1,4 @@
-/* global describe, it */
+/* global describe, it, before, beforeEach */
 
 var expect = require('chai').expect;
 
@@ -73,18 +73,18 @@ describe('@rcarls/passport-indieauth', function() {
 
 	describe('with an invalid responseType', function() {
 
-	    it('should throw', function() {
-		expect(function() {
-		    var strategy = new IndieAuthStrategy({
-			clientId: mockClientId + '/',
-			redirectUri: mockRedirectUri,
-			responseType: 'invalid',
-		    }, function() {});
-		}).to.throw(TypeError, 'response_type must be one of either "id" or "code"');
-	    });
-	    
-	}); // with an invalid responseType
-	
+            it('should throw', function() {
+                expect(function() {
+                    var strategy = new IndieAuthStrategy({
+                        clientId: mockClientId + '/',
+                        redirectUri: mockRedirectUri,
+                        responseType: 'invalid',
+                    }, function() {});
+                }).to.throw(TypeError, 'response_type must be one of either "id" or "code"');
+            });
+            
+        }); // with an invalid responseType
+        
     });
     
 });

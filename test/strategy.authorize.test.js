@@ -1,4 +1,4 @@
-/* global describe, it */
+/* global describe, it, before, beforeEach */
 
 var chai = require('chai');
 var expect = chai.expect;
@@ -23,28 +23,28 @@ describe('@rcarls/passport-indieauth', function() {
     
     describe('issuing new authorization request', function() {
 
-	var strategy = new IndieAuthStrategy({
-	    clientId: mockClientId + '/',
-	    redirectUri: mockRedirectUri,
-	}, function(domain, scopes, mfData, done) {});
-	
-	beforeEach('mock the user\'s home page', function(done) {
-	    nock(mockUserId)
-		.get('/')
-		.replyWithFile(200, __dirname + '/mocks/user-homepage.html');
-	    
-	    done();
-	});
-	
-	describe('with minimum request parameters', function() {
-	    var authEndpointUrl;
-	    
-	    beforeEach('examine redirect', function(done) {
-		chai.passport.use(strategy)
-		    .redirect(function(url) {
-			authEndpointUrl = url;
-			done();
-		    }).req(function(req) {
+        var strategy = new IndieAuthStrategy({
+            clientId: mockClientId + '/',
+            redirectUri: mockRedirectUri,
+        }, function(domain, scopes, mfData, done) {});
+        
+        beforeEach('mock the user\'s home page', function(done) {
+            nock(mockUserId)
+                .get('/')
+                .replyWithFile(200, __dirname + '/mocks/user-homepage.html');
+            
+            done();
+        });
+        
+        describe('with minimum request parameters', function() {
+            var authEndpointUrl;
+            
+            beforeEach('examine redirect', function(done) {
+                chai.passport.use(strategy)
+                    .redirect(function(url) {
+                        authEndpointUrl = url;
+                        done();
+                    }).req(function(req) {
 			req.method = 'POST';
 			req.body = {
 			    me: mockUserId + '/',

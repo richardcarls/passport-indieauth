@@ -1,4 +1,4 @@
-/* global describe, it */
+/* global describe, it, before, beforeEach */
 
 var uri = require('url');
 var qs = require('querystring');
@@ -59,8 +59,8 @@ describe('@rcarls/passport-indieauth', function() {
 
 	describe('with minimum required parameters', function() {
 
-	    it('should succeed', function(done) {
-		chai.passport.use(strategy)
+            it('should succeed', function(done) {
+                chai.passport.use(strategy)
 		    .success(function(user, info) {
 			expect(user.me).to.equal(mockUserId + '/');
 			
