@@ -26,10 +26,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "dot-object": "1.4.1",
-    "microformat-node": "^1.2.0",
-    "passport-strategy": "1.0.0",
-    "q": "1.4.1",
+    "dot-object": "^1.4.1",
+    "microformat-node": "richardcarls/microformat-node",
+    "passport-strategy": "^1.0.0",
+    "q": "^1.4.1",
     "request": "^2.72.0"
   },
   "devDependencies": {
