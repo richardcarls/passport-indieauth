@@ -1,6 +1,7 @@
 #passport-indieauth (PRE-PUBLISH)
 [![Build Status](https://travis-ci.org/richardcarls/passport-indieauth.svg?branch=master)](https://travis-ci.org/richardcarls/passport-indieauth)
 [![Coverage Status](https://coveralls.io/repos/github/richardcarls/passport-indieauth/badge.svg?branch=master)](https://coveralls.io/github/richardcarls/passport-indieauth?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/59ae2ce1755e42f285fb386fb5606c52)](https://www.codacy.com/app/richard-j-carls/passport-indieauth?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=richardcarls/passport-indieauth&amp;utm_campaign=Badge_Grade)
 
 An [IndieAuth](http://indiewebcamp.com/IndieAuth) authentication strategy for [Passport](http://passportjs.org/).
 
