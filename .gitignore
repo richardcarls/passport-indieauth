@@ -3,4 +3,4 @@ coverage
 
 .projectile
 .tern-port
-/.jshintrc
+npm-debug.log

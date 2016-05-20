@@ -17,7 +17,8 @@
   "main": "./lib/index.js",
   "scripts": {
     "test": "$(npm bin)/mocha",
-    "test-travis": "$(npm bin)/istanbul cover $(npm bin)/_mocha -- -R spec ./test/*"
+    "test-travis": "$(npm bin)/istanbul cover $(npm bin)/_mocha -- -R spec ./test/*",
+    "preversion": "ncu -ua && npm test"
   },
   "author": {
     "name": "Richard Carls",
