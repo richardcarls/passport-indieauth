@@ -9,14 +9,14 @@
         }
     ],
     "name": {
-        "formatted": "Mr.John âThe Defaultâ Joe Doe Ph.D",
+        "formatted": "Mr.John The Default Joe Doe Ph.D",
         "honorificPrefix": "Mr.",
         "givenName": "John",
         "middleName": "Joe",
         "familyName": "Doe",
         "honorificSuffix": "Ph.D"
     },
-    "displayName": "âThe Defaultâ",
+    "displayName": "The Default",
     "gender": "Male",
     "note": "Lorem ipsum dolar sit amet",
     "emails": [

@@ -18,12 +18,28 @@ var mockScope = 'post edit';
 var mockAuthCode = '1234';
 
 // Profile values
-var mockProfile = require('./mocks/profile.json');
 var mockMfData = require('./mocks/mf-data.json');
+var mockProfile = require('./mocks/profile.json');
+mockProfile._json = mockMfData;
 
 describe('@rcarls/passport-indieauth', function() {
 
   describe('the authorized user', function () {
+
+    var result;
+
+    var strategy = new IndieAuthStrategy({
+      clientId: mockClientId + '/',
+      redirectUri: mockRedirectUri,
+    }, function(domain, scope, profile, done) {
+      var user = {
+        me: domain,
+        scope: scope,
+        profile: profile,
+      };
+
+      return done(null, user, null);
+    });
 
     beforeEach('mock the verify call', function(done) {
       nock(mockAuthEndpoint)
@@ -52,102 +68,36 @@ describe('@rcarls/passport-indieauth', function() {
       done();
     });
 
-    describe('with default profile option', function() {
-      var result;
+    beforeEach('perform authorization', function(done) {
+      chai.passport.use(strategy)
+        .success(function(user, info) {
+          result = user;
 
-      var strategy = new IndieAuthStrategy({
-        clientId: mockClientId + '/',
-        redirectUri: mockRedirectUri,
-      }, function(domain, scope, profile, done) {
-        var user = {
-          me: domain,
-          scope: scope,
-          profile: profile,
-        };
+          done();
+        })
+        .req(function(req) {
+          req.query = {
+            code: mockAuthCode,
+            me: mockUserId + '/',
+            scope: mockScope,
+          };
+          req.session = {};
+        }).authenticate();
+    });
 
-        return done(null, user, null);
-      });
+    it('should have a domain', function() {
+      expect(result).to.have.property('me', mockUserId + '/');
+    });
 
-      beforeEach('perform authorization', function(done) {
-        chai.passport.use(strategy)
-          .success(function(user, info) {
-            result = user;
+    it('should have authorized scopes', function() {
+      expect(result).to.have.property('scope', mockScope);
+    });
 
-            done();
-          })
-          .req(function(req) {
-            req.query = {
-              code: mockAuthCode,
-              me: mockUserId + '/',
-              scope: mockScope,
-            };
-            req.session = {};
-          }).authenticate();
-      });
+    it('should have Contact schema profile data', function() {
+      expect(result).to.have.property('profile')
+        .which.deep.equals(mockProfile);
+    });
 
-      it('should have a domain', function() {
-        expect(result).to.have.property('me', mockUserId + '/');
-      });
-
-      it('should have authorized scopes', function() {
-        expect(result).to.have.property('scope', mockScope);
-      });
-
-      it('should have Contact schema profile data', function() {
-        expect(result).to.have.property('profile')
-          .which.deep.equals(mockProfile);
-      });
-
-    }); // with default profile option
-
-    describe('with mfData profile option', function() {
-      var result;
-
-      var strategy = new IndieAuthStrategy({
-        clientId: mockClientId + '/',
-        redirectUri: mockRedirectUri,
-        mfDataAsProfile: true,
-      }, function(domain, scope, profile, done) {
-        var user = {
-          me: domain,
-          scope: scope,
-          profile: profile,
-        };
-
-        return done(null, user, null);
-      });
-
-      beforeEach('perform authorization', function(done) {
-        chai.passport.use(strategy)
-          .success(function(user, info) {
-            result = user;
-
-            done();
-          })
-          .req(function(req) {
-            req.query = {
-              code: mockAuthCode,
-              me: mockUserId + '/',
-              scope: mockScope,
-            };
-            req.session = {};
-          }).authenticate();
-      });
-
-      it('should have a domain', function() {
-        expect(result).to.have.property('me', mockUserId + '/');
-      });
-
-      it('should have authorized scopes', function() {
-        expect(result).to.have.property('scope', mockScope);
-      });
-
-      it('should have mfData profile data', function() {
-        expect(result).to.have.property('profile')
-          .which.deep.equals(mockMfData);
-      });
-
-    }); // with mfData profile option
 
   }); // the authorized user
 
