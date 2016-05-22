@@ -1,5 +1,4 @@
 /* global describe, it */
-'use strict';
 
 var expect = require('chai').expect;
 
@@ -12,5 +11,5 @@ describe('@rcarls/passport-indieauth', function() {
     expect(IndieAuthStrategy).to.be.a('function');
     expect(IndieAuthStrategy).to.equal(IndieAuthStrategy.Strategy);
   });
-  
+
 });

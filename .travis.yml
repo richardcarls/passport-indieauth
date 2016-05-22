@@ -9,3 +9,6 @@ node_js:
   - "iojs"
 script: "npm run test-travis"
 after_script: "cat ./coverage/lcov.info | $(npm bin)/coveralls"
+addons:
+  code_climate:
+    repo_token: 053d14fc6ee534d1095b057d6c1b8807b0261865ada5710164748c5b02927df3

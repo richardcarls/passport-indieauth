@@ -1,0 +1,48 @@
+{
+    "provider": "indieauth",
+    "photos": [
+        {
+            "value": "/images/john_doe1.jpg"
+        },
+        {
+            "value": "/images/john_doe2.jpg"
+        }
+    ],
+    "name": {
+        "formatted": "Mr.John The Default Joe Doe Ph.D",
+        "honorificPrefix": "Mr.",
+        "givenName": "John",
+        "middleName": "Joe",
+        "familyName": "Doe",
+        "honorificSuffix": "Ph.D"
+    },
+    "displayName": "The Default",
+    "gender": "Male",
+    "note": "Lorem ipsum dolar sit amet",
+    "emails": [
+        {
+            "value": "john.doe@example.com"
+        },
+        {
+            "value": "john.doe2@example.com"
+        }
+    ],
+    "birthday": "1985-11-02T00:00:00-05:00",
+    "anniversary": "2013-09-28T00:00:00-05:00",
+    "phoneNumbers": [
+        {
+            "value": "555-555-5555"
+        },
+        {
+            "value": "+1 (666) 666-6666"
+        }
+    ],
+    "urls": [
+        {
+            "value": "https://example-user.com"
+        },
+        {
+            "value": "https://plus.google.com/+JohnDoe"
+        }
+    ]
+}
