@@ -1,4 +1,4 @@
-/* global describe, it, before, beforeEach */
+/* global describe, it */
 
 var expect = require('chai').expect;
 
@@ -9,82 +9,86 @@ var mockRedirectUri = 'https://example-client.com/auth';
 
 describe('@rcarls/passport-indieauth', function() {
 
-    describe('constructed', function() {
+  describe('constructed', function() {
 
-        describe('with minimum options and verify callback', function() {
+    describe('with minimum options and verify callback', function() {
 
-            var strategy = new IndieAuthStrategy({
-                clientId: mockClientId + '/',
-                redirectUri: mockRedirectUri,
-            }, function() {});
+      var strategy = new IndieAuthStrategy({
+        clientId: mockClientId + '/',
+        redirectUri: mockRedirectUri,
+      }, function() {});
 
-            it('should be named "indieauth"', function() {
-                expect(strategy.name).to.equal('indieauth');
-            });
+      it('should be named "indieauth"', function() {
+        expect(strategy.name).to.equal('indieauth');
+      });
 
-        }); // with minimum options
+    }); // with minimum options
 
-        describe('without options', function() {
+    describe('without options', function() {
 
-            it('should throw', function() {
-                expect(function() {
-                    var strategy = new IndieAuthStrategy(function(){});
-                }).to.throw(TypeError, 'IndieAuthStrategy requires an options object');
-            });
+      it('should throw', function() {
+        expect(function() {
+          var strategy = new IndieAuthStrategy(function(){});
+        }).to.throw(TypeError, 'IndieAuthStrategy requires an options object');
+      });
 
-        }); // without options
+    }); // without options
 
-        describe('without a verify callback', function() {
+    describe('without a verify callback', function() {
 
-            it('should throw', function() {
-                expect(function() {
-                    var strategy = new IndieAuthStrategy({
-                        clientId: mockClientId + '/',
-                        redirectUri: mockRedirectUri,
-                    });
-                }).to.throw(TypeError, 'IndieAuthStrategy requires a verify callback');
-            });
+      it('should throw', function() {
+        expect(function() {
+          var strategy = new IndieAuthStrategy({
+            clientId: mockClientId + '/',
+            redirectUri: mockRedirectUri,
+          });
+        }).to.throw(TypeError, 'IndieAuthStrategy requires a verify callback');
+      });
 
-        }); // without a verify callback
+    }); // without a verify callback
 
-        describe('without a clientId option', function() {
+    describe('without a clientId option', function() {
 
-            it('should throw', function() {
-                expect(function() {
-                    var strategy = new IndieAuthStrategy({
-                        redirectUri: mockRedirectUri,
-                    }, function() {});
-                }).to.throw(TypeError, 'IndieAuthStrategy requires a clientId option');
-            });
+      it('should throw', function() {
+        expect(function() {
+          var strategy = new IndieAuthStrategy({
+            redirectUri: mockRedirectUri,
+          }, function() {});
+        }).to.throw(TypeError, 'IndieAuthStrategy requires a clientId option');
+      });
 
-        }); // without a clientId option
+    }); // without a clientId option
 
-        describe('without a redirectUri option', function() {
+    describe('without a redirectUri option', function() {
 
-            it('should throw', function() {
-                expect(function() {
-                    var strategy = new IndieAuthStrategy({
-                        clientId: mockClientId + '/',
-                    }, function() {});
-                }).to.throw(TypeError, 'IndieAuthStrategy requires a redirectUri option');
-            });
+      it('should throw', function() {
+        expect(function() {
+          var strategy = new IndieAuthStrategy({
+            clientId: mockClientId + '/',
+          }, function() {});
+        }).to.throw(
+          TypeError, 'IndieAuthStrategy requires a redirectUri option'
+        );
+      });
 
-        }); // without a redirectUri option
+    }); // without a redirectUri option
 
-        describe('with an invalid responseType', function() {
+    describe('with an invalid responseType', function() {
 
-            it('should throw', function() {
-                expect(function() {
-                    var strategy = new IndieAuthStrategy({
-                        clientId: mockClientId + '/',
-                        redirectUri: mockRedirectUri,
-                        responseType: 'invalid',
-                    }, function() {});
-                }).to.throw(TypeError, 'response_type must be one of either "id" or "code"');
-            });
+      it('should throw', function() {
+        expect(function() {
+          var strategy = new IndieAuthStrategy({
+            clientId: mockClientId + '/',
+            redirectUri: mockRedirectUri,
+            responseType: 'invalid',
+          }, function() {});
+        }).to.throw(
+          TypeError, 'response_type must be one of either "id" or "code"'
+        );
+      });
 
-        }); // with an invalid responseType
+    }); // with an invalid responseType
 
-    });
+  });
 
 });

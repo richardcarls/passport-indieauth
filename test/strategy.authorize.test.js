@@ -1,11 +1,10 @@
-/* global describe, it, before, beforeEach */
+/* global describe, it, beforeEach */
 
 var chai = require('chai');
 var expect = chai.expect;
 var nock = require('nock');
 
 var uri = require('url');
-var qs = require('querystring');
 
 chai.use(require('chai-passport-strategy'));
 
@@ -17,7 +16,6 @@ var mockUserId = 'https://example-user.com';
 var mockAuthEndpoint = 'https://example-auth-endpoint.com/head/auth';
 var mockScope = 'post edit';
 var mockState = 'abc';
-var mockAuthCode = '1234';
 
 describe('@rcarls/passport-indieauth', function() {
 
