@@ -1,4 +1,4 @@
-#passport-indieauth (PRE-PUBLISH)
+#passport-indieauth
 [![Build Status](https://travis-ci.org/richardcarls/passport-indieauth.svg?branch=master)](https://travis-ci.org/richardcarls/passport-indieauth)
 [![Coverage Status](https://coveralls.io/repos/github/richardcarls/passport-indieauth/badge.svg?branch=master)](https://coveralls.io/github/richardcarls/passport-indieauth?branch=master)
 [![Code Climate](https://codeclimate.com/github/richardcarls/passport-indieauth/badges/gpa.svg)](https://codeclimate.com/github/richardcarls/passport-indieauth)
