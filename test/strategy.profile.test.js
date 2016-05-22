@@ -1,4 +1,4 @@
-/* global describe, it, before, beforeEach */
+/* global describe, it, beforeEach */
 
 var chai = require('chai');
 var expect = chai.expect;
@@ -6,7 +6,6 @@ var nock = require('nock');
 
 chai.use(require('chai-passport-strategy'));
 
-var util = require('util');
 var qs = require('querystring');
 
 var IndieAuthStrategy = require('../');
@@ -16,81 +15,11 @@ var mockRedirectUri = 'https://example-client.com/auth';
 var mockUserId = 'https://example-user.com';
 var mockAuthEndpoint = 'https://example-auth-endpoint.com/head/auth';
 var mockScope = 'post edit';
-var mockState = 'abc';
 var mockAuthCode = '1234';
 
 // Profile values
-var mockProfile = { provider: 'indieauth',
-                    photos:
-                    [ { value: '/images/john_doe1.jpg' },
-                      { value: '/images/john_doe2.jpg' } ],
-                    name:
-                    { formatted: 'Mr.John “The Default” Joe Doe Ph.D',
-                      honorificPrefix: 'Mr.',
-                      givenName: 'John',
-                      middleName: 'Joe',
-                      familyName: 'Doe',
-                      honorificSuffix: 'Ph.D' },
-                    displayName: '“The Default”',
-                    gender: 'Male',
-                    note: 'Lorem ipsum dolar sit amet',
-                    emails:
-                    [ { value: 'john.doe@example.com' },
-                      { value: 'john.doe2@example.com' } ],
-                    birthday: '1985-11-02T00:00:00-05:00',
-                    anniversary: '2013-09-28T00:00:00-05:00',
-                    phoneNumbers: [ { value: '555-555-5555' }, { value: '+1 (666) 666-6666' } ],
-                    urls:
-                    [ { value: 'https://example-user.com' },
-                      { value: 'https://plus.google.com/+JohnDoe' } ] };
-
-var mockMfData = { items:
-                   [ { type: [ 'h-card' ],
-                       properties:
-                       { photo: [ '/images/john_doe1.jpg', '/images/john_doe2.jpg' ],
-                         name: [ 'Mr.John “The Default” Joe Doe Ph.D' ],
-                         'honorific-prefix': [ 'Mr.' ],
-                         'given-name': [ 'John' ],
-                         nickname: [ '“The Default”' ],
-                         'additional-name': [ 'Joe' ],
-                         'family-name': [ 'Doe' ],
-                         'honorific-suffix': [ 'Ph.D' ],
-                         'gender-identity': [ 'Male' ],
-                         adr:
-                         [ { value: '123 Main St.\n\tApt. B\n\tExampleton\n\tDefaulting\n\t12345\n\tTest Nation',
-                             type: [ 'h-adr' ],
-                             properties:
-                             { 'street-address': [ '123 Main St.' ],
-                               'extended-address': [ 'Apt. B' ],
-                               locality: [ 'Exampleton' ],
-                               region: [ 'Defaulting' ],
-                               'postal-code': [ '12345' ],
-                               'country-name': [ 'Test Nation' ],
-                               name: [ '123 Main St.\n\tApt. B\n\tExampleton\n\tDefaulting\n\t12345\n\tTest Nation' ]
-                             } } ],
-                         note: [ 'Lorem ipsum dolar sit amet' ],
-                         email: [ 'john.doe@example.com', 'john.doe2@example.com' ],
-                         bday: [ '1985-11-02T00:00:00-05:00' ],
-                         anniversary: [ '2013-09-28T00:00:00-05:00' ],
-                         tel: [ '555-555-5555', '+1 (666) 666-6666' ],
-                         url:
-                         [ 'https://example-user.com',
-                           'https://plus.google.com/+JohnDoe' ],
-                         uid: [ 'https://example-user.com' ] } } ],
-                   rels:
-                   { authorization_endpoint:
-                     [ 'https://example-auth-endpoint.com/head/auth',
-                       'https://example-auth-endpoint.com/body/auth' ],
-                     micropub: [ 'https://example-user.com/micropub' ],
-                     me:
-                     [ 'https://example-user.com',
-                       'https://plus.google.com/+JohnDoe' ] },
-                   'rel-urls':
-                   { 'https://example-auth-endpoint.com/head/auth': { rels: [ 'authorization_endpoint' ] },
-                     'https://example-user.com/micropub': { rels: [ 'micropub' ] },
-                     'https://example-user.com': { text: 'Homepage', rels: [ 'me' ] },
-                     'https://plus.google.com/+JohnDoe': { text: 'Google', rels: [ 'me' ] },
-                     'https://example-auth-endpoint.com/body/auth': { rels: [ 'authorization_endpoint' ] } } };
+var mockProfile = require('./mocks/profile.json');
+var mockMfData = require('./mocks/mf-data.json');
 
 describe('@rcarls/passport-indieauth', function() {
 
@@ -130,7 +59,7 @@ describe('@rcarls/passport-indieauth', function() {
         clientId: mockClientId + '/',
         redirectUri: mockRedirectUri,
       }, function(domain, scope, profile, done) {
-        user = {
+        var user = {
           me: domain,
           scope: scope,
           profile: profile,
@@ -179,7 +108,7 @@ describe('@rcarls/passport-indieauth', function() {
         redirectUri: mockRedirectUri,
         mfDataAsProfile: true,
       }, function(domain, scope, profile, done) {
-        user = {
+        var user = {
           me: domain,
           scope: scope,
           profile: profile,

@@ -1,0 +1,136 @@
+{
+    "items": [
+        {
+            "type": [
+                "h-card"
+            ],
+            "properties": {
+                "photo": [
+                    "/images/john_doe1.jpg",
+                    "/images/john_doe2.jpg"
+                ],
+                "name": [
+                    "Mr.John âThe Defaultâ Joe Doe Ph.D"
+                ],
+                "honorific-prefix": [
+                    "Mr."
+                ],
+                "given-name": [
+                    "John"
+                ],
+                "nickname": [
+                    "âThe Defaultâ"
+                ],
+                "additional-name": [
+                    "Joe"
+                ],
+                "family-name": [
+                    "Doe"
+                ],
+                "honorific-suffix": [
+                    "Ph.D"
+                ],
+                "gender-identity": [
+                    "Male"
+                ],
+                "adr": [
+                    {
+                        "value": "123 Main St.\n\tApt. B\n\tExampleton\n\tDefaulting\n\t12345\n\tTest Nation",
+                        "type": [
+                            "h-adr"
+                        ],
+                        "properties": {
+                            "street-address": [
+                                "123 Main St."
+                            ],
+                            "extended-address": [
+                                "Apt. B"
+                            ],
+                            "locality": [
+                                "Exampleton"
+                            ],
+                            "region": [
+                                "Defaulting"
+                            ],
+                            "postal-code": [
+                                "12345"
+                            ],
+                            "country-name": [
+                                "Test Nation"
+                            ],
+                            "name": [
+                                "123 Main St.\n\tApt. B\n\tExampleton\n\tDefaulting\n\t12345\n\tTest Nation"
+                            ]
+                        }
+                    }
+                ],
+                "note": [
+                    "Lorem ipsum dolar sit amet"
+                ],
+                "email": [
+                    "john.doe@example.com",
+                    "john.doe2@example.com"
+                ],
+                "bday": [
+                    "1985-11-02T00:00:00-05:00"
+                ],
+                "anniversary": [
+                    "2013-09-28T00:00:00-05:00"
+                ],
+                "tel": [
+                    "555-555-5555",
+                    "+1 (666) 666-6666"
+                ],
+                "url": [
+                    "https://example-user.com",
+                    "https://plus.google.com/+JohnDoe"
+                ],
+                "uid": [
+                    "https://example-user.com"
+                ]
+            }
+        }
+    ],
+    "rels": {
+        "authorization_endpoint": [
+            "https://example-auth-endpoint.com/head/auth",
+            "https://example-auth-endpoint.com/body/auth"
+        ],
+        "micropub": [
+            "https://example-user.com/micropub"
+        ],
+        "me": [
+            "https://example-user.com",
+            "https://plus.google.com/+JohnDoe"
+        ]
+    },
+    "rel-urls": {
+        "https://example-auth-endpoint.com/head/auth": {
+            "rels": [
+                "authorization_endpoint"
+            ]
+        },
+        "https://example-user.com/micropub": {
+            "rels": [
+                "micropub"
+            ]
+        },
+        "https://example-user.com": {
+            "text": "Homepage",
+            "rels": [
+                "me"
+            ]
+        },
+        "https://plus.google.com/+JohnDoe": {
+            "text": "Google",
+            "rels": [
+                "me"
+            ]
+        },
+        "https://example-auth-endpoint.com/body/auth": {
+            "rels": [
+                "authorization_endpoint"
+            ]
+        }
+    }
+}
