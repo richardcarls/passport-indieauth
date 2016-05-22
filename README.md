@@ -1,7 +1,7 @@
 #passport-indieauth (PRE-PUBLISH)
 [![Build Status](https://travis-ci.org/richardcarls/passport-indieauth.svg?branch=master)](https://travis-ci.org/richardcarls/passport-indieauth)
 [![Coverage Status](https://coveralls.io/repos/github/richardcarls/passport-indieauth/badge.svg?branch=master)](https://coveralls.io/github/richardcarls/passport-indieauth?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/59ae2ce1755e42f285fb386fb5606c52)](https://www.codacy.com/app/richard-j-carls/passport-indieauth?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=richardcarls/passport-indieauth&amp;utm_campaign=Badge_Grade)
+[![Code Climate](https://codeclimate.com/github/richardcarls/passport-indieauth/badges/gpa.svg)](https://codeclimate.com/github/richardcarls/passport-indieauth)
 
 An [IndieAuth](http://indiewebcamp.com/IndieAuth) authentication strategy for [Passport](http://passportjs.org/).
 
@@ -50,7 +50,6 @@ passport.use(new IndieAuthStrategy({
 - `redirectUri` {String} - The authorization redirect URI.
 - `responseType` {String} - The response type of the auth request. Valid values are `'id'` (identification only), or `'code'` (identification + authorization) (optional, defaults to 'id')
 - `defaultAuthEndpoint` {String} - The fallback authorization service to use if not discovered. (optional, defaults to 'https://indieauth.com/auth')
-- `mfDataAsProfile` {Boolean} - Prefer to have the parsed microformat data passed to the verify callback as `profile`. Default is to map the parsed data to PortableContacts schema (optional, defaults to false)
 - `passReqToCallback` {Boolean} - If `true`, passes the request object to the verify callback. (optional, defaults to false)
 
 #### Authenticate Requests
@@ -77,8 +76,7 @@ app.get('/auth', passport.authenticate('indieauth', { successRedirect: '/profile
 ```
 
 #### Getting the User Profile
-The strategy provides structured profile data consistent with the [Portable Contacts draft spec](http://portablecontacts.net/draft-spec.html) if found
-when parsing the user's domain response. Note that not all possible mappings are currently implemented at this time.
+The strategy provides structured profile data consistent with the [Portable Contacts draft spec](http://portablecontacts.net/draft-spec.html) if found when parsing the user's domain response. Note that not all possible mappings are currently implemented at this time. The full parsed JSON data is included in the `_json` property. See [microformat-node](https://github.com/glennjones/microformat-node#output) for the structure of this data, and [h-card draft spec](http://microformats.org/wiki/h-card) for standard properties.
 
 ```javascript
 passport.use(new IndieAuthStrategy({
@@ -104,9 +102,7 @@ passport.use(new IndieAuthStrategy({
 ```
 
 #### Using IndieAuth
-See the [IndieWebCamp wiki entry for IndieAuth](http://indiewebcamp.com/IndieAuth) and [setup instructions](https://indieauth.com/setup) to start using
-your own domain for web sign-in. In addition to your client id being your web application's domain name, the protocol requires the inclusion of
-a `<link rel="redirect_uri" />` tag on your root page. (note: this is seems to be a "soft" requirement at this point).
+See the [IndieWebCamp wiki entry for IndieAuth](http://indiewebcamp.com/IndieAuth) and [setup instructions](https://indieauth.com/setup) to start using your own domain for web sign-in. In addition to your client id being your web application's domain name, the protocol requires the inclusion of a `<link rel="redirect_uri" />` tag on your root page. (note: this is seems to be a "soft" requirement at this point).
 
 Users may optionally specify a `rel="authorization_endpoint"` on thier home page to use an authentication service of thier choosing. To make profile information available, a user will need to have an [h-card](http://microformats.org/wiki/h-card) in the body of thier home page.
 
@@ -119,8 +115,6 @@ Users may optionally specify a `rel="authorization_endpoint"` on thier home page
 	```javascript
 	passport.authenticate(['indieauth', 'anonymous']);
 	```
-
-- The `profile` argument supplied to the verify callback defaults to PortableContacts format of the parsed user page, but you may instead have the parsed data passed directly by setting the `mfDataAsProfile` option to `true`. See [microformat-node](https://github.com/glennjones/microformat-node#output) for the structure of this data, and [h-card draft spec](http://microformats.org/wiki/h-card) for the relevant profile-related properties.
 
 ## Related Modules
 - [passport-indieauth](https://github.com/mko/passport-indieauth) - IndieAuth authentication strategy for Passport.
@@ -142,12 +136,6 @@ The test suite is located in the `test/` directory. All new features are expecte
 
 ```shell
 npm test
-```
-
-or with travis
-
-```shell
-npm run test-travis
 ```
 
 ## Credits
