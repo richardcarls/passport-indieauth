@@ -14,33 +14,36 @@ var mockClientId = 'https://example-client.com';
 var mockRedirectUri = 'https://example-client.com/auth';
 var mockUserId = 'https://example-user.com';
 var mockAuthEndpoint = 'https://example-auth-endpoint.com/head/auth';
+var mockTokenEndpoint = 'https://example-auth-endpoint.com/token';
 var mockAuthCode = '1234';
+var mockToken = 'abcd';
 
 describe('@rcarls/passport-indieauth', function() {
 
-  describe('receiving authorization result', function () {
+  var strategy = new IndieAuthStrategy({
+    clientId: mockClientId + '/',
+    redirectUri: mockRedirectUri,
+  }, function(me, scope, token, profile, done) {
+    var user = {
+      me: me,
+      scope: scope,
+      token: token,
+    };
 
-    var strategy = new IndieAuthStrategy({
-      clientId: mockClientId + '/',
-      redirectUri: mockRedirectUri,
-    }, function(domain, scope, mfData, done) {
-      var user = {
-        me: domain,
-        scope: scope,
-      };
+    return done(null, user, {});
+  });
 
-      return done(null, user, mfData);
-    });
+  beforeEach('mock the user\'s home page', function(done) {
+    nock(mockUserId)
+      .get('/')
+      .replyWithFile(200, __dirname + '/mocks/user-homepage.html');
 
-    beforeEach('mock the user\'s home page', function(done) {
-      nock(mockUserId)
-        .get('/')
-        .replyWithFile(200, __dirname + '/mocks/user-homepage.html');
+    done();
+  });
 
-      done();
-    });
+  describe('verifying with auth endpoint', function () {
 
-    beforeEach('mock the verify call', function(done) {
+    beforeEach('mock auth endpoint', function(done) {
       nock(mockAuthEndpoint)
         .post('', {
           code: mockAuthCode,
@@ -58,7 +61,8 @@ describe('@rcarls/passport-indieauth', function() {
         chai.passport.use(strategy)
           .success(function(user, info) {
             expect(user.me).to.equal(mockUserId + '/');
-
+            expect(user.token).to.be.undefined;
+            
             done();
           })
           .req(function(req) {
@@ -107,8 +111,47 @@ describe('@rcarls/passport-indieauth', function() {
 
       });
 
-    }); // without a code parameter
+    }); // without a me parameter
 
-  }); // receiving authorization result
+  }); // verifying with auth endpoint
 
-});
+  describe('verifying with token endpoint', function () {
+
+    beforeEach('mock auth endpoint', function(done) {
+      nock(mockTokenEndpoint)
+        .post('', {
+          code: mockAuthCode,
+          client_id: mockClientId + '/',
+          redirect_uri: mockRedirectUri,
+        })
+        .reply(200, qs.stringify({
+          me: mockUserId + '/',
+          access_token: mockToken,
+        }));
+
+      done();
+    });
+
+    describe('with minimum required parameters', function() {
+
+      it('should succeed', function(done) {
+        chai.passport.use(strategy)
+          .success(function(user, info) {
+            expect(user).to.have.property('me', mockUserId + '/');
+            expect(user).to.have.property('token', mockToken);
+            done();
+          })
+          .req(function(req) {
+            req.query = {
+              code: mockAuthCode,
+              me: mockUserId + '/',
+            };
+            req.session = {};
+          }).authenticate();
+      });
+
+    }); // with minimum required parameters
+
+  }); // verifying with token endpoint
+  
+}); // @rcarls/passport-indieauth
