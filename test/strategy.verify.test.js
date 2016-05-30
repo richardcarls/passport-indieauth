@@ -1,4 +1,4 @@
-/* global describe, it, beforeEach */
+/* global describe, it, beforeEach, afterEach */
 
 var qs = require('querystring');
 
@@ -13,8 +13,8 @@ var IndieAuthStrategy = require('../');
 var mockClientId = 'https://example-client.com';
 var mockRedirectUri = 'https://example-client.com/auth';
 var mockUserId = 'https://example-user.com';
-var mockAuthEndpoint = 'https://example-auth-endpoint.com/head/auth';
-var mockTokenEndpoint = 'https://example-auth-endpoint.com/token';
+var mockAuthEndpoint = 'https://example-auth-endpoint.com/auth';
+var mockTokenEndpoint = 'https://example-token-endpoint.com/token';
 var mockAuthCode = '1234';
 var mockToken = 'abcd';
 
@@ -23,27 +23,24 @@ describe('@rcarls/passport-indieauth', function() {
   var strategy = new IndieAuthStrategy({
     clientId: mockClientId + '/',
     redirectUri: mockRedirectUri,
-  }, function(me, scope, token, profile, done) {
+  }, function(uid, token, profile, done) {
     var user = {
-      me: me,
-      scope: scope,
+      uid: uid,
       token: token,
     };
 
     return done(null, user, {});
   });
 
-  beforeEach('mock the user\'s home page', function(done) {
-    nock(mockUserId)
-      .get('/')
-      .replyWithFile(200, __dirname + '/mocks/user-homepage.html');
-
-    done();
-  });
-
   describe('verifying with auth endpoint', function () {
 
-    beforeEach('mock auth endpoint', function(done) {
+    beforeEach('mock the user\'s home page', function() {
+      nock(mockUserId)
+        .get('/')
+        .replyWithFile(200, __dirname + '/mocks/homepage-auth-endpoint.html');
+    });
+
+    beforeEach('mock auth endpoint', function() {
       nock(mockAuthEndpoint)
         .post('', {
           code: mockAuthCode,
@@ -51,18 +48,19 @@ describe('@rcarls/passport-indieauth', function() {
           redirect_uri: mockRedirectUri,
         })
         .reply(200, qs.stringify({ me: mockUserId + '/', }));
+    });
 
-      done();
+    afterEach('cleanup', function() {
+      nock.cleanAll();
     });
 
     describe('with minimum required parameters', function() {
 
       it('should succeed', function(done) {
         chai.passport.use(strategy)
-          .success(function(user, info) {
-            expect(user.me).to.equal(mockUserId + '/');
-            expect(user.token).to.be.undefined;
-            
+          .success(function(user) {
+            expect(user.uid).to.equal(mockUserId + '/');
+
             done();
           })
           .req(function(req) {
@@ -117,7 +115,13 @@ describe('@rcarls/passport-indieauth', function() {
 
   describe('verifying with token endpoint', function () {
 
-    beforeEach('mock auth endpoint', function(done) {
+    beforeEach('mock the user\'s home page', function() {
+      nock(mockUserId)
+        .get('/')
+        .replyWithFile(200, __dirname + '/mocks/homepage-both-endpoints.html');
+    });
+
+    beforeEach('mock auth endpoint', function() {
       nock(mockTokenEndpoint)
         .post('', {
           code: mockAuthCode,
@@ -128,17 +132,20 @@ describe('@rcarls/passport-indieauth', function() {
           me: mockUserId + '/',
           access_token: mockToken,
         }));
+    });
 
-      done();
+    afterEach('cleanup', function() {
+      nock.cleanAll();
     });
 
     describe('with minimum required parameters', function() {
 
       it('should succeed', function(done) {
         chai.passport.use(strategy)
-          .success(function(user, info) {
-            expect(user).to.have.property('me', mockUserId + '/');
+          .success(function(user) {
+            expect(user).to.have.property('uid', mockUserId + '/');
             expect(user).to.have.property('token', mockToken);
+
             done();
           })
           .req(function(req) {
@@ -153,5 +160,5 @@ describe('@rcarls/passport-indieauth', function() {
     }); // with minimum required parameters
 
   }); // verifying with token endpoint
-  
+
 }); // @rcarls/passport-indieauth

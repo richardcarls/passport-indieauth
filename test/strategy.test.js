@@ -83,7 +83,7 @@ describe('@rcarls/passport-indieauth', function() {
             responseType: 'invalid',
           }, function() {});
         }).to.throw(
-          TypeError, 'response_type must be one of either "id" or "code"'
+          TypeError, 'responseType must be one of either "id" or "code"'
         );
       });
 
