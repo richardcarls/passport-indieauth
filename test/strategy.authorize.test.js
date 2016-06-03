@@ -12,174 +12,60 @@ var IndieAuthStrategy = require('../');
 
 var mockClientId = 'https://example-client.com';
 var mockRedirectUri = 'https://example-client.com/auth';
+var defaultAuthEndpoint = 'https://indieauth.com/auth';
 var mockUserId = 'https://example-user.com';
-var mockAuthEndpoint = 'https://example-auth-endpoint.com/head/auth';
-var mockScope = 'post edit';
-var mockState = 'abc';
+var mockAuthEndpoint = 'https://example-auth-endpoint.com/auth';
 
 describe('@rcarls/passport-indieauth', function() {
 
-  describe('issuing new authorization request', function() {
+  var strategy = new IndieAuthStrategy({
+    clientId: mockClientId,
+    redirectUri: mockRedirectUri,
+  }, function(uid, token, profile, done) {});
 
-    var strategy = new IndieAuthStrategy({
-      clientId: mockClientId + '/',
-      redirectUri: mockRedirectUri,
-    }, function(domain, scopes, mfData, done) {});
-
-    beforeEach('mock the user\'s home page', function(done) {
-      nock(mockUserId)
-        .get('/')
-        .replyWithFile(200, __dirname + '/mocks/user-homepage.html');
-
-      done();
-    });
+  describe('to authorize a user', function() {
 
     describe('with minimum request parameters', function() {
-      var authEndpointUrl;
 
-      beforeEach('examine redirect', function(done) {
-        chai.passport.use(strategy)
-          .redirect(function(url) {
-            authEndpointUrl = url;
-            done();
-          }).req(function(req) {
-            req.method = 'POST';
-            req.body = {
-              me: mockUserId + '/',
-            };
-            req.session = {};
-          }).authenticate();
+      before('mock the user\'s home page', function() {
+        nock(mockUserId)
+          .get('/')
+          .replyWithFile(200, __dirname + '/mocks/homepage-no-endpoints.html');
       });
 
-      it('should redirect to authorization endpoint', function() {
-        var url = uri.parse(authEndpointUrl);
-        delete url.search;
-
-        expect(uri.format(url)).to.equal(mockAuthEndpoint);
+      after('cleanup', function() {
+        nock.cleanAll();
       });
 
       it('should include required parameters with redirect', function() {
-        var url = uri.parse(authEndpointUrl, true);
+        chai.passport.use(strategy)
+          .redirect(function(url) {
+            var endpointQuery = uri.parse(url, true).query;
 
-        expect(url.query.me).to.equal(mockUserId + '/');
-        expect(url.query.client_id).to.equal(mockClientId + '/');
-        expect(url.query.redirect_uri).to.equal(mockRedirectUri);
+            expect(endpointQuery).to.have.property('me', mockUserId + '/');
+            expect(endpointQuery).to.have.property('client_id', mockClientId + '/');
+            expect(endpointQuery).to.have.property('redirect_uri', mockRedirectUri);
+
+            done();
+          })
+          .req(function(req) {
+            req.method = 'POST';
+            req.body = {
+              me: mockUserId,
+            };
+            req.session = {};
+          }).authenticate();
+
       });
 
     }); // with minimum request parameters
-
-    describe('with optional scope parameter', function() {
-
-      it('should work as space-deliniated string', function(done) {
-        chai.passport.use(strategy)
-          .redirect(function(url) {
-            var query = uri.parse(url, true).query;
-
-            expect(query).to.have.property('scope', mockScope);
-
-            done();
-          }).req(function(req) {
-            req.method = 'POST';
-            req.body = {
-              me: mockUserId + '/',
-              scope: mockScope,
-            };
-            req.session = {};
-          }).authenticate();
-      });
-
-      it('should work as array syntax', function(done) {
-        chai.passport.use(strategy)
-          .redirect(function(url) {
-            var query = uri.parse(url, true).query;
-
-            expect(query).to.have.property('scope', mockScope);
-
-            done();
-          }).req(function(req) {
-            req.method = 'POST';
-            req.body = {
-              me: mockUserId + '/',
-              scope: mockScope.split(' '),
-            };
-            req.session = {};
-          }).authenticate();
-
-      });
-
-      it('should work as object syntax', function(done) {
-        chai.passport.use(strategy)
-          .redirect(function(url) {
-            var query = uri.parse(url, true).query;
-
-            expect(query).to.have.property('scope', mockScope);
-
-            done();
-          }).req(function(req) {
-            req.method = 'POST';
-            req.body = {
-              me: mockUserId + '/',
-              scope: mockScope.split(' ')
-                .reduce(function(result, value) {
-                  result[value] = true;
-
-                  return result;
-                }, {}),
-            };
-            req.session = {};
-          }).authenticate();
-
-      });
-
-    }); // with optional scope parameter
-
-    describe('with optional state parameter', function() {
-
-      it('should work with default _csrf property', function(done) {
-        chai.passport.use(strategy)
-          .redirect(function(url) {
-            var query = uri.parse(url, true).query;
-
-            expect(query).to.have.property('state', mockState);
-
-            done();
-          }).req(function(req) {
-            req.method = 'POST';
-            req.body = {
-              me: mockUserId + '/',
-              _csrf: mockState,
-            };
-            req.session = {};
-          }).authenticate();
-      });
-
-      it('should work with explicit state property', function(done) {
-        chai.passport.use(strategy)
-          .redirect(function(url) {
-            var query = uri.parse(url, true).query;
-
-            expect(query).to.have.property('state', mockState);
-
-            done();
-          }).req(function(req) {
-            req.method = 'POST';
-            req.body = {
-              me: mockUserId + '/',
-              state: mockState,
-            };
-            req.session = {};
-          }).authenticate();
-
-      });
-
-    }); // with optional state parameter
 
     describe('without minimum request parameters', function() {
 
       var strategy = new IndieAuthStrategy({
         clientId: mockClientId + '/',
         redirectUri: mockRedirectUri,
-      }, function(domain, scopes, mfData, done) {});
+      }, function(uid, token, profile, done) {});
 
       it('should fail', function(done) {
         chai.passport.use(strategy)
@@ -193,6 +79,58 @@ describe('@rcarls/passport-indieauth', function() {
 
     }); // without required request parameters
 
-  }); // issuing new authorization request
+    describe('with a homepage', function() {
 
-});
+      var endpointUrl;
+
+      before('mock the user\'s home page', function() {
+        nock(mockUserId)
+          .get('/')
+          .replyWithFile(200, __dirname + '/mocks/homepage-no-endpoints.html') // Test #1
+          .get('/')
+          .replyWithFile(200, __dirname + '/mocks/homepage-auth-endpoint.html'); // Test #2
+      });
+
+      beforeEach('examine redirect', function(done) {
+        chai.passport.use(strategy)
+          .redirect(function(url) {
+            endpointUrl = uri.parse(url);
+            delete endpointUrl.search;
+
+            endpointUrl = uri.format(endpointUrl);
+            done();
+          })
+          .req(function(req) {
+            req.method = 'POST';
+            req.body = {
+              me: mockUserId,
+            };
+            req.session = {};
+          }).authenticate();
+      });
+
+      after('cleanup', function() {
+        nock.cleanAll();
+      });
+
+      describe('with no endpoints', function() {
+
+        it('should use the default auth endpoint', function() {
+          expect(endpointUrl).to.equal(defaultAuthEndpoint);
+        });
+
+      }); // with no endpoints
+
+      describe('with only authorization endpoint', function() {
+
+        it('should use the discovered auth endpoint', function() {
+          expect(endpointUrl).to.equal(mockAuthEndpoint);
+        });
+
+      }); // with only authorization endpoint
+
+    }); // for a user with a homepage
+
+  }); // to authorize a user
+
+}); // @rcarls/passport-indieauth

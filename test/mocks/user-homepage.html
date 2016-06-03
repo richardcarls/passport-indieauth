@@ -3,9 +3,9 @@
   <head>
     <title>Example User Homepage</title>
 
-    <!-- Authorization endpoint: If not included in the HTTP link header, this is the preferred link -->
-    <link rel="authorization_endpoint" href="https://example-auth-endpoint.com/head/auth" />
-
+    <link rel="authorization_endpoint" href="https://example-auth-endpoint.com/auth" />
+    <link rel="token_endpoint" href="https://example-token-endpoint.com/token" />
+    
     <!-- Micropub endpoint: Not required but useful -->
     <link rel="micropub" href="https://example-user.com/micropub" />
   </head>
@@ -54,8 +54,5 @@
       <a rel="me" class="u-url u-uid" href="https://example-user.com">Homepage</a>
       <a rel="me" class="u-url" href="https://plus.google.com/+JohnDoe">Google</a>
     </div>
-    
-    <!-- Should favor Link header, links within head, over links in body for endpoints -->
-    <link rel="authorization_endpoint" href="https://example-auth-endpoint.com/body/auth" />
   </body>
 </html>

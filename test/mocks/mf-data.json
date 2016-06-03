@@ -93,8 +93,10 @@
     ],
     "rels": {
         "authorization_endpoint": [
-            "https://example-auth-endpoint.com/head/auth",
-            "https://example-auth-endpoint.com/body/auth"
+            "https://example-auth-endpoint.com/auth"
+        ],
+        "token_endpoint": [
+            "https://example-token-endpoint.com/token"
         ],
         "micropub": [
             "https://example-user.com/micropub"
@@ -105,9 +107,14 @@
         ]
     },
     "rel-urls": {
-        "https://example-auth-endpoint.com/head/auth": {
+        "https://example-auth-endpoint.com/auth": {
             "rels": [
                 "authorization_endpoint"
+            ]
+        },
+        "https://example-token-endpoint.com/token": {
+            "rels": [
+                "token_endpoint"
             ]
         },
         "https://example-user.com/micropub": {
@@ -125,11 +132,6 @@
             "text": "Google",
             "rels": [
                 "me"
-            ]
-        },
-        "https://example-auth-endpoint.com/body/auth": {
-            "rels": [
-                "authorization_endpoint"
             ]
         }
     }
