@@ -27,9 +27,8 @@
   "license": "MIT",
   "dependencies": {
     "dot-object": "^1.4.1",
-    "microformat-node": "richardcarls/microformat-node",
+    "microformat-node": "^2.0.0",
     "passport-strategy": "^1.0.0",
-    "q": "^1.4.1",
     "request": "^2.72.0"
   },
   "devDependencies": {
