@@ -13,6 +13,9 @@ into any [Node.js](https://nodejs.org/en/) application or framework that support
 This strategy only implements the client-side of the [IndieAuth protocol](http://indiewebcamp.com/IndieAuthProtocol), and relies on endpoint discovery to determine how
 to delegate authentication. A fallback authorization endpoint can be configured, and the strategy defaults to using the canonical [indieauth.com](https://indieauth.com).
 
+## Breaking changes from v1.x
+The verify callback now supplies an access token instead of the requested scope as the second argument. It is given that the requesting app will already know which scope(s) it is requesting, and four arguments to a callback is already one too many.
+
 ## Install
 
 ```shell
@@ -35,10 +38,10 @@ passport.use(new IndieAuthStrategy({
 	clientId: 'https://example-client.com/',
 	redirectUri: 'https://example-client.com/auth',
 	passReqToCallback: true,
-  }, function(req, domain, scope, profile, done) {
+  }, function(req, uid, token, profile, done) {
   	// The verify callback:
   	// Verify the returned user credentials are valid
-	  User.findOrCreate({ url: domain }, function(err, user) {
+	  User.findOne({ uid: uid }, function(err, user) {
 		  // and return the existing or newly created user
 		  return done(err, user);
 	  });
@@ -53,6 +56,7 @@ passport.use(new IndieAuthStrategy({
 - `redirectUri` {String} - The authorization redirect URI.
 - `responseType` {String} - The response type of the auth request. Valid values are `'id'` (identification only), or `'code'` (identification + authorization) (optional, defaults to 'id')
 - `defaultAuthEndpoint` {String} - The fallback authorization service to use if not discovered. (optional, defaults to 'https://indieauth.com/auth')
+- `scopeDelimiter` {String} - Delimiter for separating scopes in the request. Defaults to a space.
 - `passReqToCallback` {Boolean} - If `true`, passes the request object to the verify callback. (optional, defaults to false)
 
 #### Authenticate Requests
@@ -71,28 +75,29 @@ app.get('/profile', passport.authenticate('indieauth', { failureRedirect: '/logi
 You can use the strategy for both requesting an auth code from a login page, and handling the code verification on the redirect route.
 
 ```javascript
-// put on your login route to capture the request params and kick off the authorization flow
-app.post('/auth/login', passport.authenticate('indieauth', {
+// Capture the request params on POST and kick off the authorization flow
+app.post('/auth', passport.authenticate('indieauth', {
 	failureRedirect: '/login', failureFlash: true,
 }));
 
 // put on your redirect route to handle the auth response and verification
-app.get('/auth', passport.authenticate('indieauth', {
+app.get('/auth/callback', passport.authenticate('indieauth', {
 	successRedirect: '/profile', failureRedirect: '/login', failureFlash: true,
 }));
 ```
 
 #### Getting the User Profile
-The strategy provides structured profile data consistent with the [Portable Contacts draft spec](http://portablecontacts.net/draft-spec.html) if found when parsing the user's domain response. Note that not all possible mappings are currently implemented at this time. The full parsed JSON data is included in the `_json` property. See [microformat-node](https://github.com/glennjones/microformat-node#output) for the structure of this data, and [h-card draft spec](http://microformats.org/wiki/h-card) for standard properties.
+The strategy provides structured profile data consistent with the [Portable Contacts draft spec](http://portablecontacts.net/draft-spec.html) if found when parsing the user's domain response. Note that not all possible mappings are currently implemented at this time. The full parsed JSON data is included in the `_json` property. See [microformats2](http://microformats.org/wiki/microformats2) for the structure of this data, and [h-card draft spec](http://microformats.org/wiki/h-card) for standard properties.
 
 ```javascript
 passport.use(new IndieAuthStrategy({
 	clientId: 'https://example-client.com/',
-	redirectUri: 'https://example-client.com/auth',
-  }, function(domain, scope, profile, done) {
+	redirectUri: 'https://example-client.com/auth/callback',
+  }, function(uid, token, profile, done) {
+    // Save access token for micropub or media endpoint requests
     var user = {
-		me: domain,
-		scope: scope,
+		uid: uid,
+		token: token,
 	};
 	
 	if (profile.name && profile.name.formatted) {
@@ -113,18 +118,23 @@ See the [IndieWebCamp wiki entry for IndieAuth](http://indiewebcamp.com/IndieAut
 
 Users may optionally specify a `rel="authorization_endpoint"` on thier home page to use an authentication service of thier choosing. To make profile information available, a user will need to have an [h-card](http://microformats.org/wiki/h-card) in the body of thier home page.
 
+Users may also optionally specify a `rel="token_endpoint"` on thier home page to indicate the availability of generating access token on thier behalf. In order for a token to be acquired, and authorization_endpoint also needs to be configured or discoverable by the token_endpoint.
+
 #### Other Usage Notes
 - The strategy currently uses a `_csrf` request property as the `state` parameter in authentication requests to the discovered service to [prevent CSRF attacks](http://tools.ietf.org/html/rfc6749#section-10.12). It is recommended to use a middleware like [csurf](https://www.npmjs.com/package/csurf) to generate csrf tokens to embed on your login page.
 - For allowing unauthenticated requests, specify [passport-anonymous](https://www.npmjs.com/package/passport-anonymous) after indieauth:
 
-```javascript
-passport.authenticate(['indieauth', 'anonymous']);
-```
+    ```javascript
+    passport.authenticate(['indieauth', 'anonymous']);
+    ```
+
+- Even though this stategy obtains an access token when possible, it does not authenticate access tokens. Use another passport strategy like [passport-http-bearer](https://github.com/jaredhanson/passport-http-bearer).
 
 ## Related Modules
 - [passport-indieauth](https://github.com/mko/passport-indieauth) - IndieAuth authentication strategy for Passport.
-- [relmeauth](https://www.npmjs.com/package/relmeauth) - A rel=me auth middleware implementation in node.js. Works with any connect-type web application
+- [relmeauth](https://www.npmjs.com/package/relmeauth) - A rel=me auth middleware implementation in node.js. Works with any connect-type web application.
 - [passport](https://github.com/jaredhanson/passport) - Simple, unobtrusive authentication for Node.js.
+- [microformat-node](https://github.com/glennjones/microformat-node) - Microformats parser for node.js.
 
 ## Tests
 
