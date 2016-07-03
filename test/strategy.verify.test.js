@@ -1,4 +1,4 @@
-/* global describe, it, beforeEach */
+/* global describe, it, beforeEach, afterEach */
 
 var qs = require('querystring');
 
@@ -13,34 +13,34 @@ var IndieAuthStrategy = require('../');
 var mockClientId = 'https://example-client.com';
 var mockRedirectUri = 'https://example-client.com/auth';
 var mockUserId = 'https://example-user.com';
-var mockAuthEndpoint = 'https://example-auth-endpoint.com/head/auth';
+var mockAuthEndpoint = 'https://example-auth-endpoint.com/auth';
+var mockTokenEndpoint = 'https://example-token-endpoint.com/token';
 var mockAuthCode = '1234';
+var mockToken = 'abcd';
 
 describe('@rcarls/passport-indieauth', function() {
 
-  describe('receiving authorization result', function () {
+  var strategy = new IndieAuthStrategy({
+    clientId: mockClientId + '/',
+    redirectUri: mockRedirectUri,
+  }, function(uid, token, profile, done) {
+    var user = {
+      uid: uid,
+      token: token,
+    };
 
-    var strategy = new IndieAuthStrategy({
-      clientId: mockClientId + '/',
-      redirectUri: mockRedirectUri,
-    }, function(domain, scope, mfData, done) {
-      var user = {
-        me: domain,
-        scope: scope,
-      };
+    return done(null, user, {});
+  });
 
-      return done(null, user, mfData);
-    });
+  describe('verifying with auth endpoint', function () {
 
-    beforeEach('mock the user\'s home page', function(done) {
+    beforeEach('mock the user\'s home page', function() {
       nock(mockUserId)
         .get('/')
-        .replyWithFile(200, __dirname + '/mocks/user-homepage.html');
-
-      done();
+        .replyWithFile(200, __dirname + '/mocks/homepage-auth-endpoint.html');
     });
 
-    beforeEach('mock the verify call', function(done) {
+    beforeEach('mock auth endpoint', function() {
       nock(mockAuthEndpoint)
         .post('', {
           code: mockAuthCode,
@@ -48,16 +48,18 @@ describe('@rcarls/passport-indieauth', function() {
           redirect_uri: mockRedirectUri,
         })
         .reply(200, qs.stringify({ me: mockUserId + '/', }));
+    });
 
-      done();
+    afterEach('cleanup', function() {
+      nock.cleanAll();
     });
 
     describe('with minimum required parameters', function() {
 
       it('should succeed', function(done) {
         chai.passport.use(strategy)
-          .success(function(user, info) {
-            expect(user.me).to.equal(mockUserId + '/');
+          .success(function(user) {
+            expect(user.uid).to.equal(mockUserId + '/');
 
             done();
           })
@@ -107,8 +109,56 @@ describe('@rcarls/passport-indieauth', function() {
 
       });
 
-    }); // without a code parameter
+    }); // without a me parameter
 
-  }); // receiving authorization result
+  }); // verifying with auth endpoint
 
-});
+  describe('verifying with token endpoint', function () {
+
+    beforeEach('mock the user\'s home page', function() {
+      nock(mockUserId)
+        .get('/')
+        .replyWithFile(200, __dirname + '/mocks/homepage-both-endpoints.html');
+    });
+
+    beforeEach('mock auth endpoint', function() {
+      nock(mockTokenEndpoint)
+        .post('', {
+          code: mockAuthCode,
+          client_id: mockClientId + '/',
+          redirect_uri: mockRedirectUri,
+        })
+        .reply(200, qs.stringify({
+          me: mockUserId + '/',
+          access_token: mockToken,
+        }));
+    });
+
+    afterEach('cleanup', function() {
+      nock.cleanAll();
+    });
+
+    describe('with minimum required parameters', function() {
+
+      it('should succeed', function(done) {
+        chai.passport.use(strategy)
+          .success(function(user) {
+            expect(user).to.have.property('uid', mockUserId + '/');
+            expect(user).to.have.property('token', mockToken);
+
+            done();
+          })
+          .req(function(req) {
+            req.query = {
+              code: mockAuthCode,
+              me: mockUserId + '/',
+            };
+            req.session = {};
+          }).authenticate();
+      });
+
+    }); // with minimum required parameters
+
+  }); // verifying with token endpoint
+
+}); // @rcarls/passport-indieauth
